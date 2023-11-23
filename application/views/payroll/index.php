@@ -1,4 +1,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.4.6/select2.min.css">
+    <!-- Phần này là data table js -->
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js" defer></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js" defer></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js" defer></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js" defer></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js" defer></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPDF/1.5.3/jspdf.debug.js" defer></script>
+
 <style>
     .select2-choice {
         border: none !important;
@@ -55,24 +68,25 @@
                         </div>
                     </div>
                     <div class="col-md-3 padd-0" style="padding-left: 5px;">
-                        <button style="box-shadow: none;" type="button" class="btn btn-primary btn-large" onclick="cms_paging_payment(1)"><i class="fa fa-search"></i> Tìm kiếm
+                        <button style="box-shadow: none;" type="button" class="btn btn-primary btn-large" onclick="cms_paging_payroll(1)"><i class="fa fa-search"></i> Tìm kiếm
                         </button>
                     </div>
                 </div>
-                <div class="col-md-4 padd-0" style="padding-left: 5px;">
+                <!-- <div class="col-md-4 padd-0" style="padding-left: 5px;">
                     <div class="btn-group order-btn-calendar">
                         <button type="button" onclick="cms_payment_week()" class="btn btn-default">Tuần</button>
                         <button type="button" onclick="cms_payment_month()" class="btn btn-default">Tháng</button>
                         <button type="button" onclick="cms_payment_quarter()" class="btn btn-default">Quý</button>
                         <button type="button" onclick="cms_payment_year()" class="btn btn-default">Năm</button>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
         <div class="payment-main-body">
         </div>
     </div>
 </div>
+
 
 <!-- Start create group -->
 <div class="modal fade" id="create-payment" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -108,15 +122,16 @@
                             <label for="group-name">Tên nhân viên nhập</label>
                         </div>
                         <div class="col-sm-9">
-                            <select class="form-control" id="employee_id">
-                                <?php
-                                $list = cms_getListPaymentType();
-                                foreach ($list as $key => $item) : ?>
-                                    <option value="<?php echo $key; ?>"><?php echo $item; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <span style="color: red; font-style: italic;" class="error error-employee"></span>
-                        </div>
+                        <select class="form-control" id="employee_id">
+                            <option value="">--- Chọn nhân viên ---</option>
+                            <?php $users = cms_getListUsers();
+                            foreach ($users as $user) { ?>
+                                <option value="<?= $user['ID'] ?>"><?= $user['display_name'] ?></option>
+                            <?php }
+                            ?>
+                        </select>
+                        <span style="color: red; font-style: italic;" class="error error-employee"></span>
+                    </div>
                     </div>
 
                     <div class="form-group">
@@ -128,14 +143,6 @@
                             <span style="color: red;" class="error error-payroll_date"></span>
                         </div>
                     </div>
-                    <!-- <div class="form-group">
-                        <div class="col-sm-3">
-                            <label for="group-name">Số phiếu</label>
-                        </div>
-                        <div class="col-sm-9">
-                            <input type="number" id="ticket_number" class="form-control" placeholder="Nhập số phiếu">
-                        </div>
-                    </div> -->
                     <div class="form-group">
                         <div class="col-sm-3">
                             <label for="group-name">Hình thức thanh toán</label>
@@ -204,6 +211,7 @@
                                 <?php }
                                 ?>
                             </select>
+                            <span style="color: red; font-style: italic;" class="error error-customer_phone"></span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -211,7 +219,7 @@
                             <label for="group-name">Ghi chú</label>
                         </div>
                         <div class="col-sm-9">
-                            <textarea name="" class="form-control" id="note" cols="30" rows="4"></textarea>
+                            <textarea name="note" class="form-control note" id="note" cols="30" rows="4"></textarea>
                         </div>
                     </div>
 
@@ -250,6 +258,13 @@
         $('#customer_phones').on('change', function() {
             let customer_id = $(this).val();
             $('#customer_id').val(customer_id).trigger("change");
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#payrollTable').DataTable({
+            dom: 'Blfrtip',
         });
     });
 </script>

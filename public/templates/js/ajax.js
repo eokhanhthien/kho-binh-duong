@@ -72,6 +72,25 @@ $(document).ready(function () {
         cms_payment_search();
     }
 
+        if (window.location.pathname.indexOf('payroll') !== -1) {
+        $('.input-daterange').datepicker({
+            format: "yyyy-mm-dd",
+            todayBtn: "linked",
+            language: "vi",
+            autoclose: true,
+            todayHighlight: true,
+            toggleActive: true
+        });
+
+        $('#payroll_date').datetimepicker({
+            autoclose: true
+        });
+        cms_set_current_week();
+        $('li#payroll').addClass('active');
+        cms_paging_payroll(1);
+        // cms_payment_search();
+    }
+
     if (window.location.pathname.indexOf('transfer') !== -1) {
         $('.input-daterange').datepicker({
             format: "yyyy-mm-dd",
@@ -4720,6 +4739,30 @@ function cms_paging_payment($page) {
     cms_adapter_ajax($param);
 }
 
+function cms_paging_payroll($page) {
+    $keyword = $('#payment-search').val();
+    $option1 = $('#search-option-1').val();
+    $date_from = $('#search-date-from').val();
+    $date_to = $('#search-date-to').val();
+    $data = {
+        'data': {
+            'option1': $option1,
+            'keyword': $keyword,
+            'date_from': $date_from,
+            'date_to': $date_to
+        }
+    };
+    var $param = {
+        'type': 'POST',
+        'url': 'payroll/cms_paging_payroll/' + $page,
+        'data': $data,
+        'callback': function (data) {
+            $('.payment-main-body').html(data);
+        }
+    };
+    cms_adapter_ajax($param);
+}
+
 function cms_paging_receipt($page) {
     $keyword = $('#receipt-search').val();
     $option1 = $('#search-option-1').val();
@@ -5441,5 +5484,203 @@ function cms_del_icon_click(obs, attach) {
 }
 
 function cms_save_payroll() {
+    "use strict";
+    var money_real = cms_decode_currency_format($('#money_real').val());
+    var money_import = cms_decode_currency_format($('#money_import').val());
+    var employeeIdValue = $("#employee_id").val();
+    var status = $("#status").val();
+    var payrollDateValue = $("#payroll_date").val();
+    var paymentMethodValue = $("#payment_method").val();
+    var customerIdValue = $("#customer_id").val();
+    var customerPhonesValue = $("#customer_phones").val();
+    var commission = $("#commission").val();
+    var note = $(".note").val();
+
+    if (money_real == 0 || !money_real) {
+        $('.error-money-real').text('Vui lòng nhập số tiền thực');
+    }  else{
+        $('.error-money-real').text('');
+        
+    }
+    if(money_import == 0 || !money_import){
+        $('.error-money-import').text('Vui lòng nhập số tiền nhập');
+    }  else{
+        $('.error-money-import').text('');   
+    }
+
+    if (employeeIdValue == '') {
+        $('.error-employee').text('Vui lòng chọn nhân viên.');
+    } else {
+        $('.error-employee').text(''); 
+    }
+
+    if (payrollDateValue == '') {
+        $('.error-payroll_date').text('Vui lòng nhập ngày.');
+    } else {
+        $('.error-payroll_date').text(''); 
+    }
+
+    if (paymentMethodValue == '') {
+        $('.error-payment-method').text('Vui lòng chọn hình thức thanh toán.');
+    } else {
+        $('.error-payment-method').text('');
+    }
+  
+    if (customerIdValue.length == 0 ) {
+        $('.error-customer_id').text('Vui lòng chọn tên khách hàng.');
+    } else {
+        $('.error-customer_id').text(''); 
+    }
+
+    if (customerPhonesValue.length == 0 ) {
+        $('.error-customer_phone').text('Vui lòng chọn tên khách hàng.');
+    } else {
+        $('.error-customer_phone').text(''); 
+    }
+    if(money_real != 0 && money_real && money_import != 0 && money_import && employeeIdValue != '' && payrollDateValue != '' && paymentMethodValue != '' && customerIdValue.length != 0 && customerPhonesValue.length != 0){
+        var $param = {
+            'type': 'POST',
+            'url': 'payroll/cms_save_payroll/',
+            'data': {
+                data: {
+                    'money_real': money_real,
+                    'money_import': money_import,
+                    'employee': employeeIdValue,
+                    'date': payrollDateValue,
+                    'payment_method': paymentMethodValue,
+                    'customer': customerIdValue,
+                    'customer_phones': customerPhonesValue,
+                    'note': note,
+                    'status': status,
+                    'commission' : commission
+                }
+            },
+            'callback': function (data) {
+                console.log($data);
+                if (data != '1') {
+                    $('.ajax-error-ct').html('Tạo bảng lương không thành công. Vui lòng thử lại!').parent().fadeIn().delay(1000).fadeOut('slow');
+                } else {
+                    $('.ajax-success-ct').html('Bạn đã tạo phiếu chi thành công!').parent().fadeIn().delay(1000).fadeOut('slow').promise().done(function() {
+                        setTimeout(function() {
+                            location.reload();
+                        }, 100);
+                    });
+                }
+            }
+        };
+
+        cms_adapter_ajax($param);
+    }
+}
+
+function cms_update_payroll(item_id) {
+    "use strict";
+    console.log(item_id);
+    var money_real = $('#money_real_' + item_id).val();
+    var money_import = $('#money_import_' + item_id).val();
+    var employeeIdValue = $("#employee_id_" + item_id).val();
+    var status = $("#status_" + item_id).val();
+    var payrollDateValue = $("#payroll_date_" + item_id).val();
+    var paymentMethodValue = $("#payment_method_" + item_id).val();
+    var customerIdValue = $("#customer_id_" + item_id).val();
+    var customerPhonesValue = $("#customer_phones_" + item_id).val();
+    var commission = $("#commission_" + item_id).val();
+    var note = $("#note_" + item_id).val();
+    var id = $("#id").val();
+
+    if (money_real == 0 || !money_real) {
+        $('.error-money-real_'+ item_id).text('Vui lòng nhập số tiền thực');
+    }  else{
+        $('.error-money-real_'+ item_id).text('');
+        
+    }
+    if(money_import == 0 || !money_import){
+        $('.error-money-import_'+ item_id).text('Vui lòng nhập số tiền nhập');
+    }  else{
+        $('.error-money-import_'+ item_id).text('');   
+    }
+
+    if (employeeIdValue == '') {
+        $('.error-employee_'+ item_id).text('Vui lòng chọn nhân viên.');
+    } else {
+        $('.error-employee_'+ item_id).text(''); 
+    }
+
+    if (payrollDateValue == '') {
+        $('.error-payroll_date_'+ item_id).text('Vui lòng nhập ngày.');
+    } else {
+        $('.error-payroll_date_'+ item_id).text(''); 
+    }
+
+    if (paymentMethodValue == '') {
+        $('.error-payment-method_'+ item_id).text('Vui lòng chọn hình thức thanh toán.');
+    } else {
+        $('.error-payment-method_'+ item_id).text('');
+    }
+  
+    if (customerIdValue.length == 0 ) {
+        $('.error-customer_id_'+ item_id).text('Vui lòng chọn tên khách hàng.');
+    } else {
+        $('.error-customer_id_'+ item_id).text(''); 
+    }
+
+    if (customerPhonesValue.length == 0 ) {
+        $('.error-customer_phone_'+ item_id).text('Vui lòng chọn sđt khách hàng.');
+    } else {
+        $('.error-customer_phone_'+ item_id).text(''); 
+    }
+    if(money_real != 0 && money_real && money_import != 0 && money_import && employeeIdValue != '' && payrollDateValue != '' && paymentMethodValue != '' && customerIdValue.length != 0 && customerPhonesValue.length != 0){
+       console.log("okie")
+        var $param = {
+            'type': 'POST',
+            'url': 'payroll/cms_update_payroll/' + item_id,
+            'data': {
+                data: {
+                    'money_real': money_real,
+                    'money_import': money_import,
+                    'employee': employeeIdValue,
+                    'date': payrollDateValue,
+                    'payment_method': paymentMethodValue,
+                    'customer': customerIdValue,
+                    'customer_phones': customerPhonesValue,
+                    'note': note,
+                    'status': status,
+                    'commission' : commission
+                }
+            },
+            'callback': function (data) {
+                console.log($data);
+                if (data != '1') {
+                    $('.ajax-error-ct').html('Tạo bảng lương không thành công. Vui lòng thử lại!').parent().fadeIn().delay(1000).fadeOut('slow');
+                } else {
+                    $('.ajax-success-ct').html('Bạn đã tạo phiếu chi thành công!').parent().fadeIn().delay(1000).fadeOut('slow').promise().done(function() {
+                        setTimeout(function() {
+                            location.reload();
+                        }, 100);
+                    });
+                }
+            }
+        };
+
+        cms_adapter_ajax($param);
+    }
+}
+function cms_delete_payroll(item_id) {
+    var $param = {
+        'type': 'POST',
+        'url': 'payroll/cms_delete_payroll/' + item_id,
+        'callback': function (data) {
+            if (data != '1') {
+                $('.ajax-error-ct').html('Xóa lương không thành công. Vui lòng thử lại!').parent().fadeIn().delay(1000).fadeOut('slow');
+            } else {
+                $('.ajax-success-ct').html('Xóa thành công!').parent().fadeIn().delay(1000).fadeOut('slow').promise().done(function() {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 100);
+                });
+            }
+        }
+    };
+    cms_adapter_ajax($param);
 
 }

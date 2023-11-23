@@ -495,3 +495,12 @@ if (!function_exists('cms_getListCustomer')) {
         return $customers;
     }
 }
+
+if (!function_exists('cms_getListUsers')) {
+    function cms_getListUsers()
+    {
+        $CI = &get_instance();
+        $users = $CI->db->select('cms_users.ID, cms_users.username, cms_users.email, cms_users.display_name')->from('cms_users')->get()->result_array();
+        return $users;
+    }
+}
